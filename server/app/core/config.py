@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://stockflow-smart-inventory-management-fxsv.onrender.com"
+        "https://stockflow-smart-inventory-management-fxsv.onrender.com",
+        "https://stockflow-smart-inventory-management-78xu.onrender.com"
     ]
     
     # We allow loading from .env or .env.production file dynamically
