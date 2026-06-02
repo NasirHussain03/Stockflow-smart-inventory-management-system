@@ -12,7 +12,8 @@ import {
   ShoppingCart as OrdersIcon,
   Brightness4, Brightness7,
   ExitToApp, KeyboardArrowDown as ArrowDownIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  History as TrackIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../App';
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { text: 'Products',  icon: ProductsIcon,  path: '/products',  color: '#10B981', bg: '#ECFDF5' },
   { text: 'Customers', icon: CustomersIcon, path: '/customers', color: '#F59E0B', bg: '#FFFBEB' },
   { text: 'Orders',    icon: OrdersIcon,    path: '/orders',    color: '#8B5CF6', bg: '#F5F3FF' },
+  { text: 'Track',     icon: TrackIcon,     path: '/track',     color: '#EC4899', bg: '#FDF2F8' },
 ];
 
 export function Layout({ children, mode, toggleMode }) {

@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Orders from './pages/Orders';
+import Track from './pages/Track';
 
 // Global notification context
 const NotificationContext = createContext();
@@ -82,6 +83,7 @@ export function App() {
                   <Route path="/products" element={<Products />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/orders" element={<Orders />} />
+                  <Route path="/track" element={<Track />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>

@@ -89,6 +89,18 @@ def create_order(
         db_order.total_amount = total_amount
         db.commit()
         db.refresh(db_order)
+
+        # Log action
+        from app.services.activity_log_service import create_log
+        create_log(
+            db,
+            action="CREATE",
+            entity_type="Order",
+            entity_id=str(db_order.id),
+            user_id=user_id,
+            details=f"Order #{db_order.id} created (Total: ₹{db_order.total_amount})"
+        )
+
         return db_order
 
     except Exception as e:
@@ -128,6 +140,18 @@ def update_order_status(
         db_order.status = status_in
         db.commit()
         db.refresh(db_order)
+
+        # Log action
+        from app.services.activity_log_service import create_log
+        create_log(
+            db,
+            action="UPDATE_STATUS",
+            entity_type="Order",
+            entity_id=str(order_id),
+            user_id=user_id,
+            details=f"Order #{order_id} status updated from '{old_status}' to '{status_in}'"
+        )
+
         return db_order
 
     except Exception as e:
@@ -145,6 +169,18 @@ def delete_order(db: Session, order_id: int, user_id: Optional[int] = None) -> O
                     db_product.stock_quantity += item.quantity
         db.delete(db_order)
         db.commit()
+
+        # Log action
+        from app.services.activity_log_service import create_log
+        create_log(
+            db,
+            action="DELETE",
+            entity_type="Order",
+            entity_id=str(order_id),
+            user_id=user_id,
+            details=f"Order #{order_id} deleted"
+        )
+
         return db_order
     except Exception as e:
         db.rollback()

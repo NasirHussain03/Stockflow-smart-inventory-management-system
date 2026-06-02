@@ -70,6 +70,18 @@ def create_customer(
     db.add(db_customer)
     db.commit()
     db.refresh(db_customer)
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="CREATE",
+        entity_type="Customer",
+        entity_id=str(db_customer.id),
+        user_id=user_id,
+        details=f"Customer '{db_customer.full_name}' ({db_customer.email}) created"
+    )
+
     return db_customer
 
 
@@ -94,11 +106,23 @@ def update_customer(
 
     db.commit()
     db.refresh(db_customer)
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="UPDATE",
+        entity_type="Customer",
+        entity_id=str(db_customer.id),
+        user_id=user_id,
+        details=f"Customer '{db_customer.full_name}' ({db_customer.email}) updated"
+    )
+
     return db_customer
 
 
 def delete_customer(db: Session, customer_id: int, user_id: Optional[int] = None) -> Customer:
-    db_customer = get_customer(db, customer_id, user_id=user_id)
+    db_customer = get_customer(db, customer_id, user_id=None)
 
     has_orders = db.query(Order).filter(Order.customer_id == customer_id).first()
     if has_orders:
@@ -107,6 +131,22 @@ def delete_customer(db: Session, customer_id: int, user_id: Optional[int] = None
             detail="Cannot delete customer as they have existing orders."
         )
 
+    # Save name before delete for logs
+    c_name = db_customer.full_name
+    c_email = db_customer.email
+
     db.delete(db_customer)
     db.commit()
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="DELETE",
+        entity_type="Customer",
+        entity_id=str(customer_id),
+        user_id=user_id,
+        details=f"Customer '{c_name}' ({c_email}) deleted"
+    )
+
     return db_customer

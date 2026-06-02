@@ -66,6 +66,18 @@ def create_product(db: Session, product_in: ProductCreate, user_id: Optional[int
     db.add(db_product)
     db.commit()
     db.refresh(db_product)
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="CREATE",
+        entity_type="Product",
+        entity_id=str(db_product.id),
+        user_id=user_id,
+        details=f"Product '{db_product.name}' (SKU: {db_product.sku}) created with price ₹{db_product.price} and stock {db_product.stock_quantity}"
+    )
+
     return db_product
 
 
@@ -90,11 +102,23 @@ def update_product(
 
     db.commit()
     db.refresh(db_product)
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="UPDATE",
+        entity_type="Product",
+        entity_id=str(db_product.id),
+        user_id=user_id,
+        details=f"Product '{db_product.name}' (SKU: {db_product.sku}) updated"
+    )
+
     return db_product
 
 
 def delete_product(db: Session, product_id: int, user_id: Optional[int] = None) -> Product:
-    db_product = get_product(db, product_id, user_id=user_id)
+    db_product = get_product(db, product_id, user_id=None)
 
     ordered_item = db.query(OrderItem).filter(OrderItem.product_id == product_id).first()
     if ordered_item:
@@ -103,6 +127,22 @@ def delete_product(db: Session, product_id: int, user_id: Optional[int] = None) 
             detail="Cannot delete product as it is associated with existing orders."
         )
 
+    # Save name and SKU before delete for logs
+    p_name = db_product.name
+    p_sku = db_product.sku
+
     db.delete(db_product)
     db.commit()
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="DELETE",
+        entity_type="Product",
+        entity_id=str(product_id),
+        user_id=user_id,
+        details=f"Product '{p_name}' (SKU: {p_sku}) deleted"
+    )
+
     return db_product

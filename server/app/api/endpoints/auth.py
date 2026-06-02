@@ -18,9 +18,35 @@ def signup(
     # Otherwise, only allow an Admin to register/create Admin users.
     if db.query(User).count() > 0 and x_user_role != "Admin":
         user_in.role = "Staff"
-    return auth_service.create_user(db, user_in)
+    user = auth_service.create_user(db, user_in)
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="SIGNUP",
+        entity_type="User",
+        entity_id=str(user.id),
+        user_id=user.id,
+        details=f"User '{user.full_name}' ({user.email}) registered as {user.role}"
+    )
+
+    return user
 
 @router.post("/login", response_model=UserResponse)
 def login(login_in: UserLogin, db: Session = Depends(get_db)):
-    return auth_service.authenticate_user(db, login_in)
+    user = auth_service.authenticate_user(db, login_in)
+
+    # Log action
+    from app.services.activity_log_service import create_log
+    create_log(
+        db,
+        action="LOGIN",
+        entity_type="User",
+        entity_id=str(user.id),
+        user_id=user.id,
+        details=f"User '{user.full_name}' logged in"
+    )
+
+    return user
 

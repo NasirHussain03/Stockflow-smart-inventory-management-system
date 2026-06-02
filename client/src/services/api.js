@@ -77,4 +77,8 @@ export const dashboardApi = {
   getStats: () => apiClient.get('/dashboard/stats').then(r => r.data),
 };
 
+export const activityLogApi = {
+  getAll: (params) => apiClient.get('/activity-logs/', { params }).then(r => r.data),
+};
+
 export default apiClient;
